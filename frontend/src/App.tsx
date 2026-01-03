@@ -16,17 +16,17 @@ import { ApplyLeavePage } from './pages/leave/ApplyLeavePage';
 import { LeaveHistoryPage } from './pages/leave/LeaveHistoryPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
 import { ROLES } from './constants/roles';
-import { DebugOverlay } from './components/DebugOverlay';
+
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <DebugOverlay />
+
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          
+
           {/* Admin Routes */}
           <Route path="/admin" element={
             <ProtectedRoute>

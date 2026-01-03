@@ -124,7 +124,7 @@ export function EditSalaryModal({
               <span className="font-medium">Net Monthly Salary</span>
             </div>
             <span className="text-2xl font-bold text-primary-700">
-              ${structure.total.toLocaleString()}
+              ₹{structure.total.toLocaleString()}
             </span>
           </div>
 

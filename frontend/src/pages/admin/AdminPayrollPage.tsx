@@ -10,7 +10,7 @@ export function AdminPayrollPage() {
   const [employees, setEmployees] = useState<EmployeePayrollSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Edit Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeePayrollSummary | null>(null);
@@ -48,21 +48,21 @@ export function AdminPayrollPage() {
 
     try {
       await payrollService.updateSalaryStructure(selectedEmployee.id, newStructure);
-      
+
       // Update local list to reflect new net salary
-      setEmployees(prev => prev.map(emp => 
-        emp.id === selectedEmployee.id 
+      setEmployees(prev => prev.map(emp =>
+        emp.id === selectedEmployee.id
           ? { ...emp, baseSalary: newStructure.basic, netSalary: newStructure.total }
           : emp
       ));
-      
+
       setIsEditModalOpen(false);
     } catch (error) {
       console.error('Failed to update salary', error);
     }
   };
 
-  const filteredEmployees = employees.filter(emp => 
+  const filteredEmployees = employees.filter(emp =>
     emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     emp.department.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -80,8 +80,8 @@ export function AdminPayrollPage() {
         </div>
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input 
-            placeholder="Search employees..." 
+          <Input
+            placeholder="Search employees..."
             className="pl-9"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -112,20 +112,20 @@ export function AdminPayrollPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 text-gray-600">{emp.department}</td>
-                  <td className="px-6 py-4 text-gray-600">${emp.baseSalary.toLocaleString()}</td>
-                  <td className="px-6 py-4 font-medium text-green-600">${emp.netSalary.toLocaleString()}</td>
+                  <td className="px-6 py-4 text-gray-600">₹{emp.baseSalary.toLocaleString()}</td>
+                  <td className="px-6 py-4 font-medium text-green-600">₹{emp.netSalary.toLocaleString()}</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
-                      ${emp.status === 'Active' ? 'bg-green-100 text-green-800' : 
-                        emp.status === 'On Leave' ? 'bg-yellow-100 text-yellow-800' : 
-                        'bg-red-100 text-red-800'}`}>
+                      ${emp.status === 'Active' ? 'bg-green-100 text-green-800' :
+                        emp.status === 'On Leave' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'}`}>
                       {emp.status}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
+                    <Button
+                      variant="outline"
+                      size="sm"
                       onClick={() => handleEditClick(emp)}
                       className="gap-2 hover:bg-primary-50 hover:text-primary-600"
                     >
@@ -137,7 +137,7 @@ export function AdminPayrollPage() {
               ))}
             </tbody>
           </table>
-          
+
           {filteredEmployees.length === 0 && (
             <div className="p-12 text-center text-gray-500">
               <Users className="mx-auto h-12 w-12 text-gray-300 mb-3" />

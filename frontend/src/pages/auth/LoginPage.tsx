@@ -103,7 +103,7 @@ export function LoginPage() {
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4 overflow-hidden">
-            <img src="/logo.png" alt="NexusHR" className="w-full h-full object-cover" />
+            <img src="/logo.png" alt="Oddo" className="w-full h-full object-cover" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Welcome back</h1>
           <p className="text-sm text-gray-500">Enter your credentials to access your account</p>
@@ -185,7 +185,7 @@ export function LoginPage() {
 
       {/* Footer / Copyright */}
       <p className="mt-8 text-center text-xs text-gray-400">
-        &copy; 2026 NexusHR. All rights reserved.
+        &copy; 2026 Oddo. All rights reserved.
       </p>
     </div>
   );

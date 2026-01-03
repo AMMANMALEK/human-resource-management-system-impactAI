@@ -46,8 +46,8 @@ export function Sidebar({ isOpen, toggleSidebar, isMobile, closeMobileSidebar }:
 
   const sidebarClasses = cn(
     "fixed top-0 left-0 z-40 h-screen bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col",
-    isMobile 
-      ? (isOpen ? "translate-x-0 w-64" : "-translate-x-full w-64") 
+    isMobile
+      ? (isOpen ? "translate-x-0 w-64" : "-translate-x-full w-64")
       : (isOpen ? "w-64" : "w-20")
   );
 
@@ -55,7 +55,7 @@ export function Sidebar({ isOpen, toggleSidebar, isMobile, closeMobileSidebar }:
     <>
       {/* Mobile Overlay */}
       {isMobile && isOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-30 bg-black/50 backdrop-blur-sm"
           onClick={closeMobileSidebar}
         />
@@ -65,22 +65,22 @@ export function Sidebar({ isOpen, toggleSidebar, isMobile, closeMobileSidebar }:
         {/* Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
           <div className={cn("flex items-center gap-2 overflow-hidden whitespace-nowrap", !isOpen && !isMobile && "w-0 opacity-0")}>
-             <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
-               <img src="/logo.png" alt="NexusHR" className="w-full h-full object-cover" />
-             </div>
-             <span className="text-xl font-bold text-gray-800">NexusHR</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+              <img src="/logo.png" alt="Oddo" className="w-full h-full object-cover" />
+            </div>
+            <span className="text-xl font-bold text-gray-800">Oddo</span>
           </div>
-          
+
           {/* Toggle Button (Desktop only here, usually) */}
           {!isMobile && (
-             <button 
-               onClick={toggleSidebar}
-               className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-             >
-               {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
-             </button>
+            <button
+              onClick={toggleSidebar}
+              className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              {isOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
+            </button>
           )}
-          
+
           {/* Mobile close button (optional, but clicking overlay is standard) */}
         </div>
 
@@ -96,13 +96,13 @@ export function Sidebar({ isOpen, toggleSidebar, isMobile, closeMobileSidebar }:
                     onClick={isMobile ? closeMobileSidebar : undefined}
                     className={cn(
                       "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative",
-                      isActive 
-                        ? "bg-primary-50 text-primary-600" 
+                      isActive
+                        ? "bg-primary-50 text-primary-600"
                         : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                     )}
                   >
                     <item.icon size={22} className={cn("min-w-[22px]", isActive ? "text-primary-600" : "text-gray-500 group-hover:text-gray-700")} />
-                    
+
                     <span className={cn(
                       "whitespace-nowrap transition-all duration-300 origin-left",
                       !isOpen && !isMobile ? "w-0 opacity-0 overflow-hidden" : "w-auto opacity-100"
@@ -125,31 +125,39 @@ export function Sidebar({ isOpen, toggleSidebar, isMobile, closeMobileSidebar }:
 
         {/* Footer / User Profile */}
         <div className="p-4 border-t border-gray-100">
-           <div className={cn(
-             "flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-50 text-left transition-colors group relative",
-             !isOpen && !isMobile ? "justify-center" : ""
-           )}>
-              <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium shrink-0">
-                JD
-              </div>
-              <div className={cn(
-                "overflow-hidden transition-all duration-300",
-                 !isOpen && !isMobile ? "w-0 opacity-0 hidden" : "w-auto opacity-100"
-              )}>
-                 <p className="text-sm font-medium text-gray-700">John Doe</p>
-                 <p className="text-xs text-gray-500">Admin</p>
-              </div>
-              
-              {(isOpen || isMobile) && (
-                <button 
-                  onClick={handleLogout}
-                  className="ml-auto p-1 text-gray-400 hover:text-red-500 transition-colors"
-                  title="Logout"
-                >
-                  <LogOut size={18} />
-                </button>
+          <div className={cn(
+            "flex items-center gap-3 w-full p-2 rounded-lg hover:bg-gray-50 text-left transition-colors group relative",
+            !isOpen && !isMobile ? "justify-center" : ""
+          )}>
+            <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium shrink-0 overflow-hidden">
+              {user?.avatar ? (
+                <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+              ) : (
+                <span>
+                  {user?.name ? user.name.charAt(0).toUpperCase() : user?.email?.charAt(0).toUpperCase() || 'U'}
+                </span>
               )}
-           </div>
+            </div>
+            <div className={cn(
+              "overflow-hidden transition-all duration-300",
+              !isOpen && !isMobile ? "w-0 opacity-0 hidden" : "w-auto opacity-100"
+            )}>
+              <p className="text-sm font-medium text-gray-700 truncate max-w-[120px]">
+                {user?.name || user?.email || 'User'}
+              </p>
+              <p className="text-xs text-gray-500 capitalize">{user?.role?.toLowerCase() || 'Employee'}</p>
+            </div>
+
+            {(isOpen || isMobile) && (
+              <button
+                onClick={handleLogout}
+                className="ml-auto p-1 text-gray-400 hover:text-red-500 transition-colors"
+                title="Logout"
+              >
+                <LogOut size={18} />
+              </button>
+            )}
+          </div>
         </div>
       </aside>
     </>
