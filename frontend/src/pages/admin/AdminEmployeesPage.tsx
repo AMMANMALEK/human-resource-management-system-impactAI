@@ -9,7 +9,7 @@ export const AdminEmployeesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
-  
+
   // Form state
   const [formData, setFormData] = useState<Partial<UserProfile>>({
     name: '',
@@ -42,17 +42,17 @@ export const AdminEmployeesPage = () => {
     setSearchTerm(e.target.value);
   };
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.department?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(user =>
+    (user.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (user.department || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleDelete = async (email: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
-        await userService.deleteUser(email);
-        setUsers(users.filter(u => u.email !== email));
+        await userService.deleteUser(id);
+        setUsers(users.filter(u => u.id !== id));
       } catch (error) {
         console.error('Failed to delete user:', error);
       }
@@ -84,7 +84,7 @@ export const AdminEmployeesPage = () => {
     e.preventDefault();
     try {
       if (editingUser) {
-        await userService.updateProfile(editingUser.email, formData);
+        await userService.updateUser(editingUser.id, formData);
       } else {
         await userService.createUser(formData as UserProfile);
       }
@@ -152,7 +152,7 @@ export const AdminEmployeesPage = () => {
                     <Edit2 size={16} />
                   </button>
                   <button
-                    onClick={() => handleDelete(user.email)}
+                    onClick={() => handleDelete(user.id)}
                     className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   >
                     <Trash2 size={16} />

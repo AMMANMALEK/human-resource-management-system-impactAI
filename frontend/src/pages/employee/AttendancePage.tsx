@@ -55,7 +55,7 @@ export function AttendancePage() {
   const handleCheckOut = async () => {
     if (!todayRecord) return;
     try {
-      await attendanceService.checkOut(todayRecord.id);
+      await attendanceService.checkOut();
       setIsCheckedIn(false);
       // Refresh list
       fetchData();

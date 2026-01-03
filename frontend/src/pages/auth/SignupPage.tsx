@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Check, X, ShieldAlert, ShieldCheck, Shield } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -13,7 +13,7 @@ import { DEFAULT_REDIRECTS } from '../../constants/roles';
 export function SignupPage() {
   const navigate = useNavigate();
   const { signup, isAuthenticated, user } = useAuth();
-  
+
   useEffect(() => {
     if (isAuthenticated && user) {
       const redirectPath = DEFAULT_REDIRECTS[user.role] || '/';
@@ -24,7 +24,7 @@ export function SignupPage() {
   const [formData, setFormData] = useState<SignupCredentials>({
     name: '',
     email: '',
-    role: 'employee',
+    role: 'EMPLOYEE',
     password: '',
     confirmPassword: '',
   });
@@ -42,15 +42,15 @@ export function SignupPage() {
 
       if (formData.name) newErrors.name = validateName(formData.name) || undefined;
       if (formData.email) newErrors.email = validateEmail(formData.email) || undefined;
-      
+
       if (formData.password) {
         newErrors.password = validatePassword(formData.password) || undefined;
         setPasswordStrength(getPasswordStrength(formData.password));
       }
 
       if (formData.confirmPassword) {
-        newErrors.confirmPassword = formData.password !== formData.confirmPassword 
-          ? "Passwords do not match" 
+        newErrors.confirmPassword = formData.password !== formData.confirmPassword
+          ? "Passwords do not match"
           : undefined;
       }
 
@@ -71,7 +71,7 @@ export function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Final validation
     const nameError = validateName(formData.name);
     const emailError = validateEmail(formData.email);
@@ -89,7 +89,7 @@ export function SignupPage() {
     }
 
     setIsLoading(true);
-    
+
     try {
       const user = await signup(formData);
       // Redirect based on role
@@ -105,12 +105,12 @@ export function SignupPage() {
     }
   };
 
-  const isFormValid = 
+  const isFormValid =
     !errors.name && !errors.email && !errors.password && !errors.confirmPassword &&
     formData.name && formData.email && formData.password && formData.confirmPassword;
 
   const getStrengthColor = (strength: string) => {
-    switch(strength) {
+    switch (strength) {
       case 'strong': return 'bg-green-500';
       case 'medium': return 'bg-yellow-500';
       default: return 'bg-red-500';
@@ -118,7 +118,7 @@ export function SignupPage() {
   };
 
   const getStrengthText = (strength: string) => {
-    switch(strength) {
+    switch (strength) {
       case 'strong': return 'Strong';
       case 'medium': return 'Medium';
       default: return 'Weak';
@@ -128,7 +128,7 @@ export function SignupPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-[320px] md:max-w-[480px] bg-white rounded-xl shadow-lg p-6 sm:p-8 space-y-8 animate-in fade-in zoom-in duration-300">
-        
+
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4 overflow-hidden">
@@ -172,8 +172,8 @@ export function SignupPage() {
             value={formData.role}
             onChange={handleChange}
             options={[
-              { label: 'Employee', value: 'employee' },
-              { label: 'Admin', value: 'admin' },
+              { label: 'Employee', value: 'EMPLOYEE' },
+              { label: 'Admin', value: 'ADMIN' },
             ]}
             required
             disabled={isLoading}
@@ -203,19 +203,19 @@ export function SignupPage() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
-            
+
             {/* Password Strength Indicator */}
             {formData.password && !errors.password && (
               <div className="flex items-center gap-2 mt-2">
                 <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
-                    className={cn("h-full transition-all duration-300", getStrengthColor(passwordStrength))} 
+                  <div
+                    className={cn("h-full transition-all duration-300", getStrengthColor(passwordStrength))}
                     style={{ width: passwordStrength === 'strong' ? '100%' : passwordStrength === 'medium' ? '66%' : '33%' }}
                   />
                 </div>
-                <span className={cn("text-xs font-medium", 
-                  passwordStrength === 'strong' ? 'text-green-600' : 
-                  passwordStrength === 'medium' ? 'text-yellow-600' : 'text-red-600'
+                <span className={cn("text-xs font-medium",
+                  passwordStrength === 'strong' ? 'text-green-600' :
+                    passwordStrength === 'medium' ? 'text-yellow-600' : 'text-red-600'
                 )}>
                   {getStrengthText(passwordStrength)}
                 </span>
@@ -268,9 +268,9 @@ export function SignupPage() {
 
           <div className="text-center text-sm pt-2">
             <span className="text-gray-500">Already have an account? </span>
-            <a href="/login" className="font-medium text-primary-600 hover:text-primary-500 hover:underline">
+            <Link to="/login" className="font-medium text-primary-600 hover:text-primary-500 hover:underline">
               Login
-            </a>
+            </Link>
           </div>
         </form>
       </div>

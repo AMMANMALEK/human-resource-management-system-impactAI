@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { leaveService, LeaveRequest } from '../../services/leaveService';
 import { StatusBadge } from '../../components/shared/StatusBadge';
 import { Button } from '../../components/ui/Button';
 import { LeaveActionModal } from '../../components/leave/LeaveActionModal';
-import { Check, X, Filter, Search, AlertCircle, FileText } from 'lucide-react';
+import { Check, X, AlertCircle, FileText } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-type FilterStatus = 'All' | 'Pending' | 'Approved' | 'Rejected';
+type FilterStatus = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED';
 
 export function AdminLeavePage() {
   const [requests, setRequests] = useState<LeaveRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<FilterStatus>('All');
-  
+  const [filter, setFilter] = useState<FilterStatus>('ALL');
+
   // Modal State
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
@@ -30,8 +30,8 @@ export function AdminLeavePage() {
       const data = await leaveService.getAllLeaveRequests();
       // Sort by Pending first, then by date desc
       const sorted = [...data].sort((a, b) => {
-        if (a.status === 'Pending' && b.status !== 'Pending') return -1;
-        if (a.status !== 'Pending' && b.status === 'Pending') return 1;
+        if (a.status === 'PENDING' && b.status !== 'PENDING') return -1;
+        if (a.status !== 'PENDING' && b.status === 'PENDING') return 1;
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
       setRequests(sorted);
@@ -54,13 +54,13 @@ export function AdminLeavePage() {
     } else {
       await leaveService.rejectLeaveRequest(id, comment);
     }
-    
+
     // Optimistic update
     setRequests(prev => prev.map(req => {
       if (req.id === id) {
-        return { 
-          ...req, 
-          status: actionType === 'approve' ? 'Approved' : 'Rejected' 
+        return {
+          ...req,
+          status: actionType === 'approve' ? 'APPROVED' : 'REJECTED'
         };
       }
       return req;
@@ -68,7 +68,7 @@ export function AdminLeavePage() {
   };
 
   const filteredRequests = requests.filter(req => {
-    if (filter === 'All') return true;
+    if (filter === 'ALL') return true;
     return req.status === filter;
   });
 
@@ -97,20 +97,20 @@ export function AdminLeavePage() {
           <h1 className="text-2xl font-bold text-gray-900">Leave Management</h1>
           <p className="text-gray-500">Review and process employee leave requests</p>
         </div>
-        
+
         <div className="flex items-center gap-2 bg-white p-1 rounded-lg border border-gray-200 shadow-sm">
-          {(['All', 'Pending', 'Approved', 'Rejected'] as FilterStatus[]).map((f) => (
+          {(['ALL', 'PENDING', 'APPROVED', 'REJECTED'] as FilterStatus[]).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={cn(
                 "px-3 py-1.5 text-sm font-medium rounded-md transition-all duration-200",
-                filter === f 
-                  ? "bg-primary-50 text-primary-700 shadow-sm" 
+                filter === f
+                  ? "bg-primary-50 text-primary-700 shadow-sm"
                   : "text-gray-600 hover:bg-gray-50"
               )}
             >
-              {f}
+              {f.charAt(0) + f.slice(1).toLowerCase()}
             </button>
           ))}
         </div>
@@ -149,7 +149,7 @@ export function AdminLeavePage() {
                         <span className={cn(
                           "w-2 h-2 rounded-full",
                           req.leaveType === 'Sick' ? "bg-red-500" :
-                          req.leaveType === 'Casual' ? "bg-blue-500" : "bg-green-500"
+                            req.leaveType === 'Casual' ? "bg-blue-500" : "bg-green-500"
                         )} />
                         {req.leaveType}
                       </div>
@@ -172,7 +172,7 @@ export function AdminLeavePage() {
                       <StatusBadge status={req.status} />
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {req.status === 'Pending' && (
+                      {req.status === 'PENDING' && (
                         <div className="flex items-center justify-end gap-2">
                           <Button
                             size="sm"

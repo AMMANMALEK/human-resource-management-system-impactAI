@@ -29,15 +29,15 @@ export function ProfilePage() {
 
   useEffect(() => {
     if (authUser?.email) {
-      loadProfile(authUser.email);
+      loadProfile();
     }
   }, [authUser]);
 
-  const loadProfile = async (email: string) => {
+  const loadProfile = async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await userService.getProfile(email);
+      const data = await userService.getProfile();
       setProfile(data);
       setFormData({ 
         name: data.name,
@@ -88,7 +88,7 @@ export function ProfilePage() {
     setSuccessMessage(null);
 
     try {
-      const updatedProfile = await userService.updateProfile(authUser.email, {
+      const updatedProfile = await userService.updateProfile({
         name: formData.name,
         phone: formData.phone,
         address: formData.address

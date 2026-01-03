@@ -82,13 +82,13 @@ export const attendanceService = {
   },
 
   // Check Out
-  checkOut: async (recordId: string): Promise<AttendanceRecord> => {
+  checkOut: async (): Promise<AttendanceRecord> => {
     if (USE_MOCK) {
         return new Promise((resolve) => {
             setTimeout(() => {
               const now = new Date();
               const updatedRecord: AttendanceRecord = {
-                id: recordId,
+                id: 'mock-id',
                 userId: '2',
                 date: now.toISOString().split('T')[0],
                 checkIn: '09:00', // Mock start
@@ -101,7 +101,8 @@ export const attendanceService = {
           });
     }
     try {
-      const response = await apiClient.post<AttendanceRecord>(`/attendance/check-out/${recordId}`);
+      // Backend infers record from user and date
+      const response = await apiClient.post<AttendanceRecord>('/attendance/check-out');
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Check-out failed');

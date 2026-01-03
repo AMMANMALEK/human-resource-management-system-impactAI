@@ -1,4 +1,4 @@
-import { User, UserRole } from '../contexts/AuthContext';
+import { User, UserRole } from '../types/auth';
 import { apiClient } from '../api/client';
 
 export interface UserProfile extends User {
@@ -21,7 +21,7 @@ const mockUsers: Record<string, UserProfile> = {
     id: '1',
     name: 'Admin User',
     email: 'admin@company.com',
-    role: 'admin',
+    role: 'ADMIN',
     avatar: 'https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff',
     department: 'Administration',
     position: 'System Administrator',
@@ -33,7 +33,7 @@ const mockUsers: Record<string, UserProfile> = {
     id: '2',
     name: 'John Doe',
     email: 'employee@company.com',
-    role: 'employee',
+    role: 'EMPLOYEE',
     avatar: 'https://ui-avatars.com/api/?name=John+Doe&background=random',
     department: 'Engineering',
     position: 'Senior Developer',
@@ -47,77 +47,58 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
 const DELAY_MS = 800;
 
 export const userService = {
-  getProfile: async (email: string): Promise<UserProfile> => {
+  getProfile: async (): Promise<UserProfile> => {
     if (USE_MOCK) {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          const user = mockUsers[email];
-          if (user) {
-            resolve({ ...user });
-          } else {
-            // Fallback for demo users not in list
-             resolve({
-                id: '99',
-                name: 'Demo User',
-                email: email,
-                role: 'employee',
-                avatar: `https://ui-avatars.com/api/?name=Demo+User&background=random`,
-                department: 'General',
-                position: 'Employee',
-                phone: '',
-                address: '',
-                joinDate: new Date().toISOString().split('T')[0]
-             });
-          }
+          // Mock behavior for testing without backend
+          // We can't use email here anymore for mock lookup without passing it,
+          // but usually in mock mode we might just return a default user or use a stored token.
+          // For simplicity in refactor, we'll return a hardcoded user or the first mock user.
+          resolve(Object.values(mockUsers)[0]);
         }, DELAY_MS);
       });
     }
 
     try {
-      // Assuming endpoint accepts email as query param or part of path
-      // Or we can just use /users/me if the token identifies the user
-      // For now, let's stick to the existing signature
-      const response = await apiClient.get<UserProfile>(`/users/profile/${email}`);
+      // Always fetch current user profile
+      const response = await apiClient.get<UserProfile>('/users/me');
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'User not found');
     }
   },
 
-  updateProfile: async (email: string, data: UpdateProfileData): Promise<UserProfile> => {
+  updateProfile: async (data: UpdateProfileData): Promise<UserProfile> => {
     if (USE_MOCK) {
-        return new Promise((resolve, reject) => {
-          setTimeout(() => {
-            const user = mockUsers[email];
-            if (user) {
-              mockUsers[email] = { 
-                ...user, 
-                ...data,
-                name: data.name || user.name
-              };
-              if (data.name) {
-                mockUsers[email].avatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name)}&background=random`;
-              }
-              resolve({ ...mockUsers[email] });
-            } else {
-               // For demo user, just return updated data merged
-               resolve({
-                id: '99',
-                name: data.name || 'Demo User',
-                email: email,
-                role: 'employee',
-                ...data
-               } as UserProfile);
-            }
-          }, DELAY_MS);
-        });
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // Mock update logic
+          resolve({} as UserProfile);
+        }, DELAY_MS);
+      });
     }
 
     try {
-      const response = await apiClient.put<UserProfile>(`/users/profile/${email}`, data);
+      // Update current user profile
+      const response = await apiClient.put<UserProfile>('/users/me', data);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to update profile');
+    }
+  },
+
+  // Admin: Update any user
+  updateUser: async (id: string, data: Partial<UserProfile>): Promise<UserProfile> => {
+    if (USE_MOCK) {
+      // Mock impl...
+      return Promise.resolve({} as UserProfile);
+    }
+    try {
+      const response = await apiClient.put<UserProfile>(`/users/${id}`, data);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to update user');
     }
   },
 
@@ -161,18 +142,18 @@ export const userService = {
     }
   },
 
-  deleteUser: async (email: string): Promise<void> => {
+  deleteUser: async (id: string): Promise<void> => {
     if (USE_MOCK) {
       return new Promise((resolve) => {
         setTimeout(() => {
-          delete mockUsers[email];
+          // Mock delete
           resolve();
         }, DELAY_MS);
       });
     }
 
     try {
-      await apiClient.delete(`/users/${email}`);
+      await apiClient.delete(`/users/${id}`);
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Failed to delete user');
     }

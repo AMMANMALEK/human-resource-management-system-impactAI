@@ -6,13 +6,13 @@ const MOCK_USERS: Record<string, User> = {
     id: '1',
     name: 'Admin User',
     email: 'admin@company.com',
-    role: 'admin'
+    role: 'ADMIN'
   },
   'employee@company.com': {
     id: '2',
     name: 'John Doe',
     email: 'employee@company.com',
-    role: 'employee'
+    role: 'EMPLOYEE'
   }
 };
 
@@ -30,7 +30,7 @@ export const authService = {
             email: credentials.email,
             role: credentials.role
           };
-          
+
           const response = {
             token: 'mock-jwt-token',
             user
@@ -39,21 +39,21 @@ export const authService = {
           localStorage.setItem("auth_token", response.token);
           localStorage.setItem("user_role", response.user.role);
           localStorage.setItem("auth_user", JSON.stringify(response.user));
-          
+
           resolve(response);
         }, DELAY_MS);
       });
     }
 
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/signup', credentials);
+      const response = await apiClient.post<AuthResponse>('/auth/register', credentials);
       const data = response.data;
-      
+
       // Auto-login after signup
       localStorage.setItem("auth_token", data.token);
       localStorage.setItem("user_role", data.user.role);
       localStorage.setItem("auth_user", JSON.stringify(data.user));
-      
+
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Signup failed");
@@ -70,31 +70,31 @@ export const authService = {
               token: 'mock-jwt-token',
               user
             };
-            
+
             localStorage.setItem("auth_token", response.token);
             localStorage.setItem("user_role", response.user.role);
             localStorage.setItem("auth_user", JSON.stringify(response.user));
-            
+
             resolve(response);
           } else {
             // Allow any login for demo purposes if not in mock list, default to employee
             // or reject strictly. Let's be strict for known demo accounts but allow others as employee for ease
             if (credentials.email.includes('admin')) {
-               reject(new Error("Invalid credentials"));
-               return;
+              reject(new Error("Invalid credentials"));
+              return;
             }
-            
+
             const demoUser: User = {
-                id: '99',
-                name: 'Demo User',
-                email: credentials.email,
-                role: 'employee'
+              id: '99',
+              name: 'Demo User',
+              email: credentials.email,
+              role: 'employee'
             };
-             const response = {
+            const response = {
               token: 'mock-jwt-token',
               user: demoUser
             };
-            
+
             localStorage.setItem("auth_token", response.token);
             localStorage.setItem("user_role", response.user.role);
             localStorage.setItem("auth_user", JSON.stringify(response.user));
@@ -107,11 +107,11 @@ export const authService = {
     try {
       const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
       const data = response.data;
-      
+
       localStorage.setItem("auth_token", data.token);
       localStorage.setItem("user_role", data.user.role);
       localStorage.setItem("auth_user", JSON.stringify(data.user));
-      
+
       return data;
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Invalid credentials. Please try again.");

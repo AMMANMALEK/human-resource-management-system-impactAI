@@ -7,6 +7,10 @@ export function DebugOverlay() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const [isOpen, setIsOpen] = React.useState(true);
 
+  if (!import.meta.env.DEV) {
+    return null;
+  }
+
   if (!isOpen) {
     return (
       <button 

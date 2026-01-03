@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -12,7 +12,7 @@ export function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login, isAuthenticated, user } = useAuth();
-  
+
   useEffect(() => {
     if (isAuthenticated && user) {
       const redirectPath = DEFAULT_REDIRECTS[user.role] || '/';
@@ -55,7 +55,7 @@ export function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Final validation before submit
     const emailError = validateEmail(formData.email);
     const passwordError = validatePassword(formData.password);
@@ -73,10 +73,10 @@ export function LoginPage() {
 
     try {
       const user = await login(formData);
-      
+
       // Check if there's a saved location to redirect to
       const from = (location.state as any)?.from?.pathname;
-      
+
       if (from) {
         navigate(from, { replace: true });
         return;
@@ -99,7 +99,7 @@ export function LoginPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-[320px] md:max-w-[480px] bg-white rounded-xl shadow-lg p-6 sm:p-8 space-y-8 animate-in fade-in zoom-in duration-300">
-        
+
         {/* Header */}
         <div className="text-center space-y-2">
           <div className="w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4 overflow-hidden">
@@ -127,7 +127,7 @@ export function LoginPage() {
             />
 
             <div className="space-y-1 relative">
-               <div className="relative">
+              <div className="relative">
                 <Input
                   id="password"
                   name="password"
@@ -176,9 +176,9 @@ export function LoginPage() {
 
           <div className="text-center text-sm">
             <span className="text-gray-500">Don't have an account? </span>
-            <a href="#" className="font-medium text-primary-600 hover:text-primary-500 hover:underline">
+            <Link to="/signup" className="font-medium text-primary-600 hover:text-primary-500 hover:underline">
               Sign up
-            </a>
+            </Link>
           </div>
         </form>
       </div>
