@@ -1,80 +1,129 @@
-import { AuthResponse, LoginCredentials, SignupCredentials, UserRole } from "../types/auth";
+import { AuthResponse, LoginCredentials, SignupCredentials, UserRole, User } from "../types/auth";
+import { apiClient } from "../api/client";
 
-const MOCK_DELAY = 1000;
+const MOCK_USERS: Record<string, User> = {
+  'admin@company.com': {
+    id: '1',
+    name: 'Admin User',
+    email: 'admin@company.com',
+    role: 'admin'
+  },
+  'employee@company.com': {
+    id: '2',
+    name: 'John Doe',
+    email: 'employee@company.com',
+    role: 'employee'
+  }
+};
+
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
+const DELAY_MS = 800;
 
 export const authService = {
   signup: async (credentials: SignupCredentials): Promise<AuthResponse> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Mock checking if user exists
-        if (credentials.email.includes("existing")) {
-          reject(new Error("Email already exists"));
-          return;
-        }
-
-        const response: AuthResponse = {
-          user: {
+    if (USE_MOCK) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const user: User = {
             id: Math.random().toString(36).substr(2, 9),
-            email: credentials.email,
             name: credentials.name,
-            role: credentials.role,
-          },
-          token: `mock-jwt-token-${Math.random().toString(36).substr(2, 9)}`,
-        };
-        
-        // Auto-login after signup
-        localStorage.setItem("auth_token", response.token);
-        localStorage.setItem("user_role", response.user.role);
-        localStorage.setItem("auth_user", JSON.stringify(response.user));
-        
-        resolve(response);
-      }, MOCK_DELAY);
-    });
+            email: credentials.email,
+            role: credentials.role
+          };
+          
+          const response = {
+            token: 'mock-jwt-token',
+            user
+          };
+
+          localStorage.setItem("auth_token", response.token);
+          localStorage.setItem("user_role", response.user.role);
+          localStorage.setItem("auth_user", JSON.stringify(response.user));
+          
+          resolve(response);
+        }, DELAY_MS);
+      });
+    }
+
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/signup', credentials);
+      const data = response.data;
+      
+      // Auto-login after signup
+      localStorage.setItem("auth_token", data.token);
+      localStorage.setItem("user_role", data.user.role);
+      localStorage.setItem("auth_user", JSON.stringify(data.user));
+      
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Signup failed");
+    }
   },
 
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Mock validation
-        if (credentials.email === "admin@company.com" && credentials.password === "Password123") {
-          const response: AuthResponse = {
-            user: {
-              id: "1",
-              email: "admin@company.com",
-              name: "Admin User",
-              role: "admin",
-            },
-            token: "mock-jwt-token-admin",
-          };
-          localStorage.setItem("auth_token", response.token);
-          localStorage.setItem("user_role", response.user.role);
-          localStorage.setItem("auth_user", JSON.stringify(response.user));
-          resolve(response);
-        } else if (credentials.email === "employee@company.com" && credentials.password === "Password123") {
-          const response: AuthResponse = {
-            user: {
-              id: "2",
-              email: "employee@company.com",
-              name: "John Doe",
-              role: "employee",
-            },
-            token: "mock-jwt-token-employee",
-          };
-          localStorage.setItem("auth_token", response.token);
-          localStorage.setItem("user_role", response.user.role);
-          localStorage.setItem("auth_user", JSON.stringify(response.user));
-          resolve(response);
-        } else {
-          reject(new Error("Invalid credentials. Please try again."));
-        }
-      }, MOCK_DELAY);
-    });
+    if (USE_MOCK) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const user = MOCK_USERS[credentials.email];
+          if (user) {
+            const response = {
+              token: 'mock-jwt-token',
+              user
+            };
+            
+            localStorage.setItem("auth_token", response.token);
+            localStorage.setItem("user_role", response.user.role);
+            localStorage.setItem("auth_user", JSON.stringify(response.user));
+            
+            resolve(response);
+          } else {
+            // Allow any login for demo purposes if not in mock list, default to employee
+            // or reject strictly. Let's be strict for known demo accounts but allow others as employee for ease
+            if (credentials.email.includes('admin')) {
+               reject(new Error("Invalid credentials"));
+               return;
+            }
+            
+            const demoUser: User = {
+                id: '99',
+                name: 'Demo User',
+                email: credentials.email,
+                role: 'employee'
+            };
+             const response = {
+              token: 'mock-jwt-token',
+              user: demoUser
+            };
+            
+            localStorage.setItem("auth_token", response.token);
+            localStorage.setItem("user_role", response.user.role);
+            localStorage.setItem("auth_user", JSON.stringify(response.user));
+            resolve(response);
+          }
+        }, DELAY_MS);
+      });
+    }
+
+    try {
+      const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+      const data = response.data;
+      
+      localStorage.setItem("auth_token", data.token);
+      localStorage.setItem("user_role", data.user.role);
+      localStorage.setItem("auth_user", JSON.stringify(data.user));
+      
+      return data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Invalid credentials. Please try again.");
+    }
   },
 
   logout: () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user_role");
     localStorage.removeItem("auth_user");
+    // Optional: Call logout endpoint if exists
+    // apiClient.post('/auth/logout');
   },
 
   isAuthenticated: (): boolean => {

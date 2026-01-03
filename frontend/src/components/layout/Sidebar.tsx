@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, LayoutDashboard, Users, Calendar, Settings, UserCircle, Plus, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, LayoutDashboard, Users, Calendar, Settings, UserCircle, Plus, LogOut, Clock, DollarSign, BarChart3 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -15,12 +15,14 @@ const ADMIN_NAV_ITEMS = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
   { label: 'Employees', icon: Users, path: '/admin/employees' },
   { label: 'Leave Requests', icon: Calendar, path: '/admin/leaves' },
+  { label: 'Payroll', icon: DollarSign, path: '/admin/payroll' },
   { label: 'Profile', icon: UserCircle, path: '/admin/profile' },
   { label: 'Settings', icon: Settings, path: '/admin/settings' },
 ];
 
 const EMPLOYEE_NAV_ITEMS = [
   { label: 'Dashboard', icon: LayoutDashboard, path: '/employee/dashboard' },
+  { label: 'Attendance', icon: Clock, path: '/employee/attendance' },
   { label: 'Apply Leave', icon: Plus, path: '/employee/apply-leave' },
   { label: 'My Leaves', icon: Calendar, path: '/employee/leaves' },
   { label: 'Profile', icon: UserCircle, path: '/employee/profile' },
@@ -63,10 +65,10 @@ export function Sidebar({ isOpen, toggleSidebar, isMobile, closeMobileSidebar }:
         {/* Header */}
         <div className="flex items-center justify-between h-16 px-4 border-b border-gray-100">
           <div className={cn("flex items-center gap-2 overflow-hidden whitespace-nowrap", !isOpen && !isMobile && "w-0 opacity-0")}>
-             <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center text-white font-bold">
-               L
+             <div className="w-8 h-8 rounded-lg flex items-center justify-center overflow-hidden">
+               <img src="/logo.png" alt="NexusHR" className="w-full h-full object-cover" />
              </div>
-             <span className="text-xl font-bold text-gray-800">LMS</span>
+             <span className="text-xl font-bold text-gray-800">NexusHR</span>
           </div>
           
           {/* Toggle Button (Desktop only here, usually) */}

@@ -1,3 +1,5 @@
+import { apiClient } from '../api/client';
+
 export interface LeaveRequest {
   id: string;
   leaveType: 'Casual' | 'Sick' | 'Paid';
@@ -16,104 +18,85 @@ export interface CreateLeaveRequest {
   reason: string;
 }
 
-const DELAY_MS = 1000;
+const MOCK_LEAVES: LeaveRequest[] = [
+  { id: '1', leaveType: 'Casual', fromDate: '2024-04-01', toDate: '2024-04-02', reason: 'Personal work', status: 'Pending', createdAt: '2024-03-20', employeeName: 'John Doe' },
+  { id: '2', leaveType: 'Sick', fromDate: '2024-03-15', toDate: '2024-03-16', reason: 'Fever', status: 'Approved', createdAt: '2024-03-14', employeeName: 'John Doe' },
+];
+
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
+const DELAY_MS = 800;
 
 export const leaveService = {
   getAllLeaveRequests: async (): Promise<LeaveRequest[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockRequests: LeaveRequest[] = [
-          {
-            id: 'REF-001',
-            leaveType: 'Casual',
-            fromDate: '2026-02-10',
-            toDate: '2026-02-12',
-            reason: 'Visiting family out of town for a wedding ceremony and family gathering.',
-            status: 'Approved',
-            createdAt: '2026-01-15T10:00:00Z',
-            employeeName: 'Sarah Wilson'
-          },
-          {
-            id: 'REF-002',
-            leaveType: 'Sick',
-            fromDate: '2026-01-20',
-            toDate: '2026-01-21',
-            reason: 'High fever and flu symptoms.',
-            status: 'Rejected',
-            createdAt: '2026-01-19T08:30:00Z',
-            employeeName: 'Mike Johnson'
-          },
-          {
-            id: 'REF-003',
-            leaveType: 'Paid',
-            fromDate: '2026-03-01',
-            toDate: '2026-03-05',
-            reason: 'Annual vacation trip to mountains.',
-            status: 'Pending',
-            createdAt: '2026-02-25T09:15:00Z',
-            employeeName: 'Emily Davis'
-          },
-          {
-            id: 'REF-004',
-            leaveType: 'Casual',
-            fromDate: '2025-12-24',
-            toDate: '2025-12-26',
-            reason: 'Christmas celebration with family.',
-            status: 'Approved',
-            createdAt: '2025-12-10T11:20:00Z',
-            employeeName: 'John Doe'
-          },
-          {
-            id: 'REF-005',
-            leaveType: 'Sick',
-            fromDate: '2026-03-10',
-            toDate: '2026-03-12',
-            reason: 'Scheduled dental surgery.',
-            status: 'Pending',
-            createdAt: '2026-03-01T14:20:00Z',
-            employeeName: 'Sarah Wilson'
-          }
-        ];
-        resolve(mockRequests);
-      }, DELAY_MS);
-    });
+    if (USE_MOCK) {
+      return new Promise((resolve) => setTimeout(() => resolve(MOCK_LEAVES), DELAY_MS));
+    }
+    try {
+      const response = await apiClient.get<LeaveRequest[]>('/leaves');
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch leave requests');
+    }
   },
 
   approveLeaveRequest: async (id: string, comment?: string): Promise<void> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, DELAY_MS);
-    });
+    if (USE_MOCK) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+              const leave = MOCK_LEAVES.find(l => l.id === id);
+              if (leave) leave.status = 'Approved';
+              resolve();
+            }, DELAY_MS);
+          });
+    }
+    try {
+      await apiClient.post(`/leaves/${id}/approve`, { comment });
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to approve leave request');
+    }
   },
 
   rejectLeaveRequest: async (id: string, reason: string): Promise<void> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, DELAY_MS);
-    });
+    if (USE_MOCK) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+              const leave = MOCK_LEAVES.find(l => l.id === id);
+              if (leave) leave.status = 'Rejected';
+              resolve();
+            }, DELAY_MS);
+          });
+    }
+    try {
+      await apiClient.post(`/leaves/${id}/reject`, { reason });
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to reject leave request');
+    }
   },
 
   applyLeave: async (data: CreateLeaveRequest): Promise<LeaveRequest> => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Simulate random failure (10% chance)
-        if (Math.random() < 0.1) {
-          reject(new Error('Failed to submit leave request. Please try again.'));
-          return;
-        }
-
-        const newRequest: LeaveRequest = {
-          id: Math.random().toString(36).substr(2, 9),
-          ...data,
-          leaveType: data.leaveType as LeaveRequest['leaveType'],
-          status: 'Pending',
-          createdAt: new Date().toISOString()
-        };
-        resolve(newRequest);
-      }, DELAY_MS);
-    });
+    if (USE_MOCK) {
+        return new Promise((resolve) => {
+            setTimeout(() => {
+              const newLeave: LeaveRequest = {
+                id: Math.random().toString(36).substr(2, 9),
+                leaveType: data.leaveType as any,
+                fromDate: data.fromDate,
+                toDate: data.toDate,
+                reason: data.reason,
+                status: 'Pending',
+                createdAt: new Date().toISOString().split('T')[0]
+              };
+              MOCK_LEAVES.unshift(newLeave);
+              resolve(newLeave);
+            }, DELAY_MS);
+          });
+    }
+    try {
+      const response = await apiClient.post<LeaveRequest>('/leaves', data);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to submit leave request');
+    }
   },
 
   validateLeaveRequest: (data: CreateLeaveRequest): Record<string, string> => {
@@ -161,48 +144,14 @@ export const leaveService = {
   },
 
   getLeaveHistory: async (): Promise<LeaveRequest[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const mockHistory: LeaveRequest[] = [
-          {
-            id: 'REF-001',
-            leaveType: 'Casual',
-            fromDate: '2026-02-10',
-            toDate: '2026-02-12',
-            reason: 'Visiting family out of town for a wedding ceremony and family gathering.',
-            status: 'Approved',
-            createdAt: '2026-01-15T10:00:00Z'
-          },
-          {
-            id: 'REF-002',
-            leaveType: 'Sick',
-            fromDate: '2026-01-20',
-            toDate: '2026-01-21',
-            reason: 'High fever and flu symptoms.',
-            status: 'Rejected',
-            createdAt: '2026-01-19T08:30:00Z'
-          },
-          {
-            id: 'REF-003',
-            leaveType: 'Paid',
-            fromDate: '2026-03-01',
-            toDate: '2026-03-05',
-            reason: 'Annual vacation trip to mountains.',
-            status: 'Pending',
-            createdAt: '2026-02-25T09:15:00Z'
-          },
-          {
-            id: 'REF-004',
-            leaveType: 'Casual',
-            fromDate: '2025-12-24',
-            toDate: '2025-12-26',
-            reason: 'Christmas celebration with family.',
-            status: 'Approved',
-            createdAt: '2025-12-10T11:20:00Z'
-          }
-        ];
-        resolve(mockHistory);
-      }, DELAY_MS);
-    });
+    if (USE_MOCK) {
+      return new Promise((resolve) => setTimeout(() => resolve(MOCK_LEAVES), DELAY_MS));
+    }
+    try {
+      const response = await apiClient.get<LeaveRequest[]>('/leaves/my-history');
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch leave history');
+    }
   }
 };

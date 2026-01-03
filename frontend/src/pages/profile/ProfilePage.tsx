@@ -16,8 +16,16 @@ export function ProfilePage() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   // Form state
-  const [formData, setFormData] = useState({ name: '' });
-  const [formErrors, setFormErrors] = useState<{ name?: string }>({});
+  const [formData, setFormData] = useState({ 
+    name: '',
+    phone: '',
+    address: ''
+  });
+  const [formErrors, setFormErrors] = useState<{ 
+    name?: string;
+    phone?: string;
+    address?: string;
+  }>({});
 
   useEffect(() => {
     if (authUser?.email) {
@@ -31,7 +39,11 @@ export function ProfilePage() {
     try {
       const data = await userService.getProfile(email);
       setProfile(data);
-      setFormData({ name: data.name });
+      setFormData({ 
+        name: data.name,
+        phone: data.phone || '',
+        address: data.address || ''
+      });
     } catch (err) {
       setError('Failed to load profile data');
     } finally {
@@ -77,7 +89,9 @@ export function ProfilePage() {
 
     try {
       const updatedProfile = await userService.updateProfile(authUser.email, {
-        name: formData.name
+        name: formData.name,
+        phone: formData.phone,
+        address: formData.address
       });
       setProfile(updatedProfile);
       setIsEditing(false);
@@ -214,9 +228,72 @@ export function ProfilePage() {
               </div>
             </div>
 
-            {/* Actions */}
+            {/* Contact Details */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                  Phone Number
+                </label>
+                {isEditing ? (
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    error={formErrors.phone}
+                    disabled={isSaving}
+                  />
+                ) : (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg text-gray-700">
+                    <span className="font-medium">{profile.phone || 'Not set'}</span>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="address" className="text-sm font-medium text-gray-700">
+                  Address
+                </label>
+                {isEditing ? (
+                  <Input
+                    id="address"
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                    error={formErrors.address}
+                    disabled={isSaving}
+                  />
+                ) : (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg text-gray-700">
+                    <span className="font-medium">{profile.address || 'Not set'}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Read-only Employment Details */}
+            <div className="pt-6 border-t border-gray-100">
+              <h3 className="text-md font-semibold text-gray-900 mb-4">Employment Details</h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                 <div className="space-y-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase">Department</span>
+                  <p className="text-gray-900 font-medium">{profile.department || 'N/A'}</p>
+                 </div>
+                 <div className="space-y-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase">Role / Position</span>
+                  <p className="text-gray-900 font-medium">{profile.position || 'N/A'}</p>
+                 </div>
+                 <div className="space-y-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase">Date of Joining</span>
+                  <p className="text-gray-900 font-medium">{profile.joinDate ? new Date(profile.joinDate).toLocaleDateString() : 'N/A'}</p>
+                 </div>
+                 <div className="space-y-1">
+                  <span className="text-xs font-medium text-gray-500 uppercase">Employee ID</span>
+                  <p className="text-gray-900 font-medium">{profile.id}</p>
+                 </div>
+              </div>
+            </div>
+
             {isEditing && (
-              <div className="flex items-center gap-3 pt-4 border-t">
+              <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
                 <Button
                   type="submit"
                   disabled={isSaving || formData.name === profile.name}

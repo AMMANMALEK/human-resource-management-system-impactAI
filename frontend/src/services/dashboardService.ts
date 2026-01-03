@@ -1,4 +1,4 @@
-import { ROLES } from '../constants/roles';
+import { apiClient } from '../api/client';
 
 export interface AdminStats {
   totalRequests: number;
@@ -53,22 +53,31 @@ const MOCK_EMPLOYEE_STATS: EmployeeStats = {
   ]
 };
 
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true';
 const DELAY_MS = 800;
 
 export const dashboardService = {
   getAdminStats: async (): Promise<AdminStats> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(MOCK_ADMIN_STATS);
-      }, DELAY_MS);
-    });
+    if (USE_MOCK) {
+      return new Promise((resolve) => setTimeout(() => resolve(MOCK_ADMIN_STATS), DELAY_MS));
+    }
+    try {
+      const response = await apiClient.get<AdminStats>('/dashboard/admin-stats');
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch admin stats');
+    }
   },
 
   getEmployeeStats: async (): Promise<EmployeeStats> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(MOCK_EMPLOYEE_STATS);
-      }, DELAY_MS);
-    });
+    if (USE_MOCK) {
+      return new Promise((resolve) => setTimeout(() => resolve(MOCK_EMPLOYEE_STATS), DELAY_MS));
+    }
+    try {
+      const response = await apiClient.get<EmployeeStats>('/dashboard/employee-stats');
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch employee stats');
+    }
   }
 };

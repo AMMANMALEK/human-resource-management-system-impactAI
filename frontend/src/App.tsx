@@ -6,8 +6,12 @@ import { ProtectedRoute } from './components/security/ProtectedRoute';
 import { RoleGuard } from './components/security/RoleGuard';
 import { AuthProvider } from './contexts/AuthContext';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { AdminEmployeesPage } from './pages/admin/AdminEmployeesPage';
 import { AdminLeavePage } from './pages/admin/AdminLeavePage';
+import { AdminPayrollPage } from './pages/admin/AdminPayrollPage';
 import { EmployeeDashboard } from './pages/employee/EmployeeDashboard';
+import { AttendancePage } from './pages/employee/AttendancePage';
+import { PayrollPage } from './pages/employee/PayrollPage';
 import { ApplyLeavePage } from './pages/leave/ApplyLeavePage';
 import { LeaveHistoryPage } from './pages/leave/LeaveHistoryPage';
 import { ProfilePage } from './pages/profile/ProfilePage';
@@ -34,8 +38,9 @@ function App() {
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="profile" element={<ProfilePage />} />
-            <Route path="employees" element={<div className="p-4">Admin Employees Management</div>} />
+            <Route path="employees" element={<AdminEmployeesPage />} />
             <Route path="leaves" element={<AdminLeavePage />} />
+            <Route path="payroll" element={<AdminPayrollPage />} />
             <Route path="settings" element={<div className="p-4">Admin Settings</div>} />
           </Route>
 
@@ -49,6 +54,8 @@ function App() {
           }>
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<EmployeeDashboard />} />
+            <Route path="attendance" element={<AttendancePage />} />
+            <Route path="payroll" element={<PayrollPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="apply-leave" element={<ApplyLeavePage />} />
             <Route path="leaves" element={<LeaveHistoryPage />} />
