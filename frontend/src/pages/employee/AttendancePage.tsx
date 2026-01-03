@@ -15,6 +15,14 @@ export function AttendancePage() {
     fetchData();
   }, []);
 
+  const getLocalTodayDate = () => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const fetchData = async () => {
     setIsLoading(true);
     try {
@@ -24,14 +32,17 @@ export function AttendancePage() {
       ]);
       setRecords(data);
       setStats(statsData);
-      
-      // Check if already checked in today
-      const today = new Date().toISOString().split('T')[0];
+
+      // Check if already checked in today using local date matching backend
+      const today = getLocalTodayDate();
       const todayRec = data.find(r => r.date === today);
-      
+
       if (todayRec) {
         setTodayRecord(todayRec);
         setIsCheckedIn(!!todayRec.checkIn && !todayRec.checkOut);
+      } else {
+        setTodayRecord(null);
+        setIsCheckedIn(false);
       }
     } catch (error) {
       console.error('Failed to fetch attendance', error);
@@ -47,8 +58,12 @@ export function AttendancePage() {
       setIsCheckedIn(true);
       // Refresh list
       fetchData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Check-in failed', error);
+      // If already checked in, refresh data to sync state
+      if (error.message?.includes('Already checked in')) {
+        fetchData();
+      }
     }
   };
 
@@ -68,11 +83,11 @@ export function AttendancePage() {
     return <div className="p-6">Loading attendance data...</div>;
   }
 
-  const currentDate = new Date().toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  const currentDate = new Date().toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
   });
 
   return (
@@ -82,7 +97,7 @@ export function AttendancePage() {
           <h1 className="text-2xl font-bold text-gray-900">Attendance</h1>
           <p className="text-gray-500">{currentDate}</p>
         </div>
-        
+
         {/* Check-in/out Card */}
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-6">
           <div className="flex flex-col">
@@ -91,7 +106,7 @@ export function AttendancePage() {
               {isCheckedIn ? 'Checked In' : 'Checked Out'}
             </span>
           </div>
-          
+
           {isCheckedIn ? (
             <Button variant="outline" className="border-red-200 text-red-600 hover:bg-red-50" onClick={handleCheckOut}>
               <LogOut className="mr-2 h-4 w-4" /> Check Out
@@ -116,7 +131,7 @@ export function AttendancePage() {
             </div>
             <p className="text-2xl font-bold text-gray-900">{stats.present} <span className="text-xs font-normal text-gray-500">days</span></p>
           </div>
-          
+
           <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-red-50 text-red-600 rounded-lg">
@@ -126,7 +141,7 @@ export function AttendancePage() {
             </div>
             <p className="text-2xl font-bold text-gray-900">{stats.absent} <span className="text-xs font-normal text-gray-500">days</span></p>
           </div>
-          
+
           <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-yellow-50 text-yellow-600 rounded-lg">
@@ -136,7 +151,7 @@ export function AttendancePage() {
             </div>
             <p className="text-2xl font-bold text-gray-900">{stats.late} <span className="text-xs font-normal text-gray-500">days</span></p>
           </div>
-          
+
           <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
@@ -154,7 +169,7 @@ export function AttendancePage() {
         <div className="px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900">Attendance History</h2>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
             <thead className="text-xs text-gray-500 uppercase bg-gray-50 border-b border-gray-100">
