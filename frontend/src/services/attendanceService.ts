@@ -152,6 +152,10 @@ export const attendanceService = {
   },
 
   // Get Monthly Stats
+  getStats: async (): Promise<AttendanceStats> => {
+    return attendanceService.getMonthlyStats();
+  },
+
   getMonthlyStats: async (): Promise<AttendanceStats> => {
     if (USE_MOCK) {
       return new Promise((resolve) => {
